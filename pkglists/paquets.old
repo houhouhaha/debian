@@ -1,0 +1,138 @@
+# Paquets à ajouter pour un bureau Debian à la sauce Microlinux
+#
+
+# Bureau de base
+kde-plasma-desktop
+kde-l10n-fr
+kde-l10n-de
+qtcurve
+system-config-gtk-kde
+
+# Gestion des imprimantes
+cups
+# hplip --> éventuellement installer manuellement une version plus récente
+
+# Gestion des partages réseau
+nfs-common
+smbclient
+smbfs
+
+# Économiseur d'écran
+kscreensaver
+
+# Gestionnaire d'archives 
+ark
+rar
+unrar
+p7zip-rar
+
+# Éditeur de texte avancé
+kate
+
+# Calculatrice 
+kcalc
+
+# Post-it
+gnote
+
+# Captures d'écran 
+ksnapshot
+
+# Sélecteur de couleurs
+kcolorchooser
+
+# Visualiseur d'images 
+gwenview
+
+# Visualiseur PDF 
+okular
+kdegraphics-strigi-plugins
+
+# ImageMagick
+imagemagick
+
+# Gestion du scanner
+simple-scan
+
+# Navigateur Web 
+iceweasel 
+iceweasel-l10n-fr
+iceweasel-l10n-de
+ 
+# Plug-ins pour Iceweasel
+flashplugin-nonfree
+sun-java6-plugin
+gecko-mediaplayer
+
+# Client mail 
+icedove
+icedove-l10n-fr
+icedove-l10n-de
+
+# GIMP
+gimp
+gimp-data-extras
+gimp-dcraw
+gimp-help-fr
+gimp-help-de
+
+# Client BitTorrent
+transmission-gtk
+
+# Client FTP
+gftp
+
+# Messagerie instantanée
+pidgin
+pidgin-facebookchat
+pidgin-microblog
+pidgin-otr
+pidgin-privacy-please
+pidgin-themes
+
+# Codecs
+libdvdcss2
+w32codecs
+w64codecs
+
+# Polices
+ttf-inconsolata
+ttf-linux-libertine
+ttf-mscorefonts-installer
+
+# Suite bureautique
+openoffice.org
+openoffice.org-l10n-fr
+openoffice.org-l10n-de
+openoffice.org-help-fr
+openoffice.org-help-de
+openoffice.org-hyphenation-fr
+openoffice.org-hyphenation-de
+openoffice.org-kde
+openoffice.org-pdfimport
+mozilla-openoffice.org
+
+# Lecteur audio 
+amarok
+
+# Table de mixage
+kmix
+
+# Extracteur audio
+grip
+
+# Lecteur vidéo
+smplayer
+
+# Logiciel de gravure
+k3b
+k3b-extrathemes
+k3b-i18n
+normalize-audio
+
+# Backend et dépendances pour Gtkcdlabel
+cdlabelgen
+python-cddb
+python-glade2
+python-id3
+
