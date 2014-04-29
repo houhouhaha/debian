@@ -1,0 +1,17 @@
+# /etc/apt/sources.list 
+ 
+# Dépôts principaux
+deb http://ftp.fr.debian.org/debian/ wheezy main contrib non-free
+deb-src http://ftp.fr.debian.org/debian/ wheezy main contrib non-free
+
+# Mises à jour de sécurité
+deb http://security.debian.org/ wheezy/updates main contrib non-free
+deb-src http://security.debian.org/ wheezy/updates main contrib non-free
+
+# Mises à jour fréquentes
+deb http://ftp.fr.debian.org/debian/ wheezy-updates main contrib non-free
+deb-src http://ftp.fr.debian.org/debian/ wheezy-updates main contrib non-free
+
+
+
+
