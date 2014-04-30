@@ -1,0 +1,78 @@
+#!/bin/bash
+#
+# /etc/firewall/firewall-start
+
+# Lire la configuration
+. /etc/default/firewall
+IPT=$(which iptables)
+SYS=$(which sysctl)
+
+if [ $FW_ACTIVE != "yes" ]; then
+  echo "Firewall disabled in /etc/default/firewall."
+  exit 0
+fi
+
+# Remise à zéro de toutes les règles de pare-feu
+. /etc/firewall/firewall-stop
+
+# Les connexions entrantes sont bloquées par défaut 
+$IPT -P INPUT DROP
+
+# Les connexions destinées à être routées sont acceptées par défaut 
+$IPT -P FORWARD ACCEPT
+
+# Les connexions sortantes sont acceptées par défaut
+$IPT -P OUTPUT ACCEPT
+
+# Faire confiance à nous-mêmes ;o)
+$IPT -A INPUT -i lo -j ACCEPT
+
+# Protocole ICMP (ping)
+$IPT -A INPUT -p icmp -j ACCEPT
+
+# Protocole IGMP (pour le multicast)
+$IPT -A INPUT -p igmp -j ACCEPT
+
+# Connexions établies
+$IPT -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+
+# FTP 
+# /sbin/modprobe ip_conntrack_ftp
+# $IPT -A INPUT -p tcp -i $IFACE_INET --dport 21 -j ACCEPT
+
+# Accepter SSH avec une limite d'une tentative de connexion par minute 
+$IPT -A INPUT -p tcp -i $IFACE_INET --dport 22 -m state --state NEW \
+	-m recent --set --name SSH 
+$IPT -A INPUT -p tcp -i $IFACE_INET --dport 22 -m state --state NEW \
+	-m recent --update --seconds 60 --hitcount 2 --rttl --name SSH -j DROP 
+$IPT -A INPUT -p tcp -i $IFACE_INET --dport 22 -j ACCEPT
+
+# Accepter les requêtes SMTP 
+# $IPT -A INPUT -p tcp -i $IFACE_INET --dport 25 -j ACCEPT
+
+# Accepter les requêtes DNS 
+# $IPT -A INPUT -p udp -i $IFACE_INET --dport 53 -j ACCEPT
+# $IPT -A INPUT -p tcp -i $IFACE_INET --dport 53 -j ACCEPT
+
+# Autoriser le serveur HTTP 
+# $IPT -A INPUT -p tcp -i $IFACE_INET --dport 80 -j ACCEPT
+
+# Accepter les requêtes POP
+# $IPT -A INPUT -p tcp -i $IFACE_INET --dport 110 -j ACCEPT
+
+# Accepter les requêtes IMAP
+# $IPT -A INPUT -p tcp -i $IFACE_INET --dport 143 -j ACCEPT
+
+# Accepter les requêtes IMAPS
+# $IPT -A INPUT -p tcp -i $IFACE_INET --dport 993 -j ACCEPT
+
+# Accepter les requêtes POPS
+# $IPT -A INPUT -p tcp -i $IFACE_INET --dport 995 -j ACCEPT
+
+# Autoriser le serveur Icecast 
+# $IPT -A INPUT -p tcp -i $IFACE_INET --dport 8000 -j ACCEPT
+
+# Log
+$IPT -A INPUT -j LOG --log-prefix "+++ IPv4 packet rejected +++ "
+$IPT -A INPUT -j REJECT
+

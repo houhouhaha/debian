@@ -1,0 +1,23 @@
+#!/bin/bash
+#
+# /etc/firewall/firewall-stop
+
+# Lire la configuration
+. /etc/default/firewall
+IPT=$(which iptables)
+SYS=$(which sysctl)
+
+# Remettre iptables à zéro
+$IPT -P INPUT ACCEPT
+$IPT -P OUTPUT ACCEPT
+$IPT -P FORWARD ACCEPT
+$IPT -P POSTROUTING ACCEPT -t nat
+$IPT -P PREROUTING ACCEPT -t nat
+$IPT -P OUTPUT ACCEPT -t nat
+$IPT -F
+$IPT -F -t nat
+$IPT -X
+
+# Désactiver le partage de connexion
+$SYS -q -w net.ipv4.ip_forward=0
+

@@ -1,0 +1,48 @@
+#!/bin/sh -e
+# 
+# Script d'initialisation /etc/init.d/firewall
+#
+### BEGIN INIT INFO
+# Provides:          firewall
+# Required-Start:    mountall
+# Required-Stop:
+# X-Start-Before:    networking
+# X-Stop-After:      networking
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-description: firewall
+# Description: Start firewall and masquerading
+### END INIT INFO
+
+# Fonctions de base
+. /lib/lsb/init-functions
+
+# Fonctions pour start, stop et restart
+case "$1" in
+  start)
+    log_begin_msg "Starting firewall and masquerading..."
+    . /etc/firewall/firewall-start
+    log_end_msg 0
+    ;;
+  stop)
+    log_begin_msg "Stopping firewall and masquerading..."
+		. /etc/firewall/firewall-stop
+		log_end_msg 0
+		;;
+	restart)
+    log_begin_msg "Stopping firewall and masquerading..."
+		. /etc/firewall/firewall-stop
+		log_end_msg 0
+    log_begin_msg "Starting firewall and masquerading..."
+    . /etc/firewall/firewall-start
+    log_end_msg 0
+		;;
+	status)
+		/sbin/iptables -L -v -n
+		;;	
+  *)
+    log_success_msg "Usage: xxx {start|stop|restart|status}"
+		exit 1
+		;;
+esac
+exit 0

@@ -1,0 +1,104 @@
+#!/bin/bash
+#
+# /etc/firewall/firewall-start
+
+# Lire la configuration
+. /etc/default/firewall
+IPT=$(which iptables)
+SYS=$(which sysctl)
+
+if [ $FW_ACTIVE != "yes" ]; then
+  echo "Firewall disabled in /etc/default/firewall."
+  exit 0
+fi
+
+# Remise à zéro de toutes les règles de pare-feu
+. /etc/firewall/firewall-stop
+
+# Les connexions entrantes sont bloquées par défaut 
+$IPT -P INPUT DROP
+
+# Les connexions destinées à être routées sont acceptées par défaut 
+$IPT -P FORWARD ACCEPT
+
+# Les connexions sortantes sont acceptées par défaut
+$IPT -P OUTPUT ACCEPT
+
+# Faire confiance à nous-mêmes ;o)
+$IPT -A INPUT -i lo -j ACCEPT
+
+# Protocole ICMP (ping)
+$IPT -A INPUT -p icmp -j ACCEPT
+
+# Protocole IGMP (pour le multicast)
+$IPT -A INPUT -p igmp -j ACCEPT
+
+# Connexions établies
+$IPT -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+
+# FTP 
+# /sbin/modprobe ip_conntrack_ftp
+# $IPT -A INPUT -p tcp -i $IFACE_LAN --dport 21 -j ACCEPT
+
+# SSH en local
+$IPT -A INPUT -p tcp -i $IFACE_LAN --dport 22 -j ACCEPT
+# SSH en provenance d'Internet, en bannissant les attaques en force brute
+# $IPT -A INPUT -p tcp -i $IFACE_INET --dport 22 -m state --state NEW \
+# -m recent --set --name SSH
+# $IPT -A INPUT -p tcp -i $IFACE_INET --dport 22 -m state --state NEW \
+#  -m recent --update --seconds 60 --hitcount 2 --rttl --name SSH -j DROP
+# $IPT -A INPUT -p tcp -i $IFACE_INET --dport 22 -j ACCEPT
+
+# DNS 
+# $IPT -A INPUT -p udp -i $IFACE_LAN --dport 53 -j ACCEPT
+# $IPT -A INPUT -p tcp -i $IFACE_LAN --dport 53 -j ACCEPT
+
+# DHCP 
+# $IPT -A INPUT -p udp -i $IFACE_LAN --dport 67 -j ACCEPT
+
+# HTTP 
+# $IPT -A INPUT -p tcp -i $IFACE_LAN --dport 80 -j ACCEPT
+
+# NTP 
+# $IPT -A INPUT -p udp -i $IFACE_LAN --dport 123 -j ACCEPT
+
+# CUPS 
+# $IPT -A INPUT -p tcp -i $IFACE_LAN --dport 631 -j ACCEPT
+# $IPT -A INPUT -p udp -i $IFACE_LAN --dport 631 -j ACCEPT
+
+# Samba 
+# $IPT -A INPUT -p tcp -i $IFACE_LAN --dport 135 -j ACCEPT
+# $IPT -A INPUT -p udp -i $IFACE_LAN --dport 137 -j ACCEPT
+# $IPT -A INPUT -p udp -i $IFACE_LAN --dport 138 -j ACCEPT
+# $IPT -A INPUT -p tcp -i $IFACE_LAN --dport 139 -j ACCEPT
+# $IPT -A INPUT -p tcp -i $IFACE_LAN --dport 445 -j ACCEPT
+
+# NFS 
+# $IPT -A INPUT -p tcp -i $IFACE_LAN --dport 111 -j ACCEPT
+# $IPT -A INPUT -p udp -i $IFACE_LAN --dport 111 -j ACCEPT
+# $IPT -A INPUT -p tcp -i $IFACE_LAN --dport 2049 -j ACCEPT
+# $IPT -A INPUT -p udp -i $IFACE_LAN --dport 2049 -j ACCEPT
+# $IPT -A INPUT -p tcp -i $IFACE_LAN --dport 32765:32769 -j ACCEPT
+# $IPT -A INPUT -p udp -i $IFACE_LAN --dport 32765:32769 -j ACCEPT
+
+# Squid 
+# $IPT -A INPUT -p tcp -i $IFACE_LAN --dport 3128 -j ACCEPT
+# $IPT -A INPUT -p udp -i $IFACE_LAN --dport 3128 -j ACCEPT
+# Rediriger toutes les requêtes HTTP - sauf celles vers le serveur lui-même -
+# vers le port 3128 pour obtenir un proxy transparent
+# $IPT -t nat -A PREROUTING -i $IFACE_LAN -p tcp ! -d 192.168.2.1 \
+#  --dport 80 -j REDIRECT --to-port 3128
+
+# Apt-Cacher 
+# $IPT -A INPUT -p tcp -i $IFACE_LAN --dport 3142 -j ACCEPT
+
+# Log
+$IPT -A INPUT -j LOG --log-prefix "+++ IPv4 packet rejected +++ "
+$IPT -A INPUT -j REJECT
+
+# Partage de connexion 
+if [ $FW_MASQ = 'yes' ]; then
+  $IPT -t nat -A POSTROUTING -o $IFACE_INET -s $IFACE_LAN_IP -j MASQUERADE
+  $SYS -q -w net.ipv4.ip_forward=1
+fi
+

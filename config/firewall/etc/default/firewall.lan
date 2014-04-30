@@ -1,0 +1,13 @@
+# Fichier /etc/default/firewall
+# Démarrer le pare-feu : yes/no
+FW_ACTIVE=yes
+
+# Démarrer le partage de connexion : yes/no
+FW_MASQ=yes
+
+# Internet
+IFACE_INET=eth0
+
+# Réseau local
+IFACE_LAN=eth1
+IFACE_LAN_IP=192.168.2.0/24
